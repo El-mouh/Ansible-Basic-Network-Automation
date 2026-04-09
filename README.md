@@ -13,6 +13,12 @@ It configures:
 
 ---
 
+## 🗺️ Topology
+
+![Network Topology](images/topology.png)
+
+---
+
 ## 📂 Project Structure
 
 ```
