@@ -1,0 +1,62 @@
+- name: Basic network automation
+  hosts: routers
+  gather_facts: false
+  connection: network_cli
+
+  tasks:
+    - name: configure descriptions and state
+      cisco.ios.ios_interfaces:
+        config: 
+          - name: "{{ item.name }}"
+            description: "{{ item.description }}"
+            enabled: "{{ item.enabled }}"
+      loop: "{{ interfaces }}"
+      tags: interfaces
+
+    - name: configure ip addresses
+      cisco.ios.ios_l3_interfaces:
+        config:
+          - name: "{{ item.name }}"
+            ipv4: "{{ item.ipv4 }}"
+      loop: "{{ interfaces }}"
+      tags: l3_interfaces
+
+    - name: configure static routes 
+      cisco.ios.ios_static_routes:
+        config:
+          - address_families:
+              - afi: ipv4
+                routes:
+                  - dest: "{{ item.dest }}"
+                    next_hops:
+                      - forward_router_address: "{{ item.next_hop }}"
+      loop: "{{ static_routes }}"
+      tags: static_routes
+
+    - name: verify interfaces configuration 
+      cisco.ios.ios_command:
+        commands:
+          - show running-config | section interface
+      register: interfaces_config
+      tags: verify_interfaces
+
+    - name: save interfaces output to a file 
+      copy:
+        content: "{{ interfaces_config.stdout[0] }}"
+        dest: "./outputs/{{ inventory_hostname }}_interfaces.txt"
+      tags: file_interfaces
+
+    - name: verify routing configuration
+      cisco.ios.ios_command:
+        commands:
+          - show ip route
+      register: routing_config
+      tags: verify_routes
+
+    - name: save routes output to a file 
+      copy:
+        content: "{{ routing_config.stdout[0] }}"
+        dest: "./outputs/{{ inventory_hostname }}_route.txt"
+      tags: file_routes
+
+      

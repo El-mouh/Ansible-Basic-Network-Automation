@@ -1,0 +1,27 @@
+ansible_host: 192.168.100.17
+
+interfaces:
+  - name: Ethernet0/1
+    description: R1 and R2 link
+    enabled: true
+    ipv4:
+      - address: 10.0.0.1/24
+
+  - name: Ethernet0/3
+    description: R1 and R3 link
+    enabled: true
+    ipv4:
+      - address: 10.0.1.1/24
+
+  - name: Ethernet0/2
+    description: local LAN
+    enabled: true
+    ipv4:
+      - address: 172.16.1.1/24
+
+static_routes:
+  - dest: 172.16.2.0/24
+    next_hop: 10.0.0.2
+
+  - dest: 172.16.3.0/24
+    next_hop: 10.0.1.2
